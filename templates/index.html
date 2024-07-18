@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="300"> <!-- Refresh the page every 5 minutes (300 seconds) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blacklist Checker</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .record {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .blacklisted {
+            background-color: red;
+            color: white;
+        }
+        .not-blacklisted {
+            background-color: green;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <br/>
+        <h1 class="text-center">Blacklist Checker</h1>
+        <br/>
+        <div class="row">
+            {% for ip in mail_server_ips %}
+                <div class="col-md-4">
+                    <div class="record {% if ip in blacklisted|map(attribute='ip_address') %}blacklisted{% else %}not-blacklisted{% endif %}">
+                        <p>The IP <strong>{{ ip }}</strong> is currently:</p>
+                        {% if ip in blacklisted|map(attribute='ip_address') %}
+                            {% set ip_info = blacklisted|selectattr('ip_address', 'equalto', ip)|list|first %}
+                            <p><strong>Blacklisted</strong> on the following DNSBLs:</p>
+                            <ul>
+                                {% for bl in ip_info.dnsbls %}
+                                    <li>{{ bl }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p><strong>Not blacklisted</strong> on any of the checked DNSBLs.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
